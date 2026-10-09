@@ -1,0 +1,24 @@
+# ---- Xcode 构建产物 ----
+.build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+
+# ---- 工作区临时文件（文档生成工具链、中间产物）----
+.tmp/
+
+# ---- 已被扩展 target 取代的旧目录 ----
+GuiWei/GuiWeiWidgetSource/
+
+# ---- macOS ----
+.DS_Store
+
+# ---- Office 临时文件 ----
+~$*
+
+# ---- 课程提供的材料（非本项目产出）----
+/iOS 开发指北.pdf
+/题目要求.docx
+/开发指北.pdf
