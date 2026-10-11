@@ -25,3 +25,8 @@ GuiWei/GuiWeiWidgetSource/
 
 # ---- 本地资料（不上传）----
 本地资料/
+
+# ---- Android 版与工具链（只保留在本地，不上传）----
+.android-toolchain/
+guiwei安卓版/
+.idea/

@@ -67,11 +67,8 @@ struct LendSheet: View {
             Task { await NotificationService.shared.scheduleLoanDue(for: loan) }
         }
 
-        // 借出期间在灵动岛 / 锁定屏上显示"借给谁、还剩几天"
-        LiveActivityCenter.shared.start(itemName: item.name,
-                                     borrower: loan.borrower,
-                                     locationPath: item.locationPath,
-                                     dueDate: loan.dueAt)
+        // 借出后刷新「下一件要做的事」（灵动岛 / 锁定屏）
+        LiveActivityCenter.shared.refreshFromStore()
 
         let all = (try? context.fetch(FetchDescriptor<Item>())) ?? []
         WidgetBridge.publish(items: all)

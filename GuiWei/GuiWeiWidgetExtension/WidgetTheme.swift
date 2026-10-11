@@ -19,7 +19,20 @@ extension Color {
 }
 
 enum WidgetTheme {
-    static let ink = Color(hex: "1B366B")
-    static let accent = Color(hex: "FFB86B")
     static let cardBackground = Color(hex: "12233F")
+
+    /// 到期：橙红，表示"要处理"
+    static let expiryAccent = Color(hex: "FF8A4C")
+    /// 归还：暖黄，表示"在外面"
+    static let loanAccent = Color(hex: "FFC46B")
+    /// 已经逾期：红
+    static let overdueAccent = Color(hex: "FF6B6B")
+    /// 一切正常
+    static let doneAccent = Color(hex: "5BD08A")
+
+    /// 依据活动类型与剩余天数取强调色
+    static func accent(for kind: GuiWeiActivityAttributes.Kind, daysLeft: Int?) -> Color {
+        if let days = daysLeft, days < 0 { return overdueAccent }
+        return kind == .expiry ? expiryAccent : loanAccent
+    }
 }

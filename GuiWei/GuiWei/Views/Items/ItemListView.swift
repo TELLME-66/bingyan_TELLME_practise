@@ -408,7 +408,7 @@ struct ItemListView: View {
             item.touch()
             try? context.save()
             NotificationService.shared.cancelLoan(for: item.uid)
-            LiveActivityCenter.shared.finish(itemName: item.name)
+            LiveActivityCenter.shared.refreshFromStore()
             refreshEcosystem()
         }
     }

@@ -78,8 +78,17 @@ struct SettingsView: View {
             Label("敬请期待实体标签", systemImage: "tag")
                 .foregroundStyle(.secondary)
 
+            // 手动收起：不想等它自己消失时用这个
+            Button {
+                LiveActivityCenter.shared.endAll()
+                showToast("已从灵动岛收起")
+            } label: {
+                Label("收起灵动岛", systemImage: "xmark.circle")
+            }
+            .disabled(LiveActivityCenter.shared.activeCount == 0)
+
             HStack {
-                Label("借出实时活动", systemImage: "bolt.horizontal.circle")
+                Label("实时活动", systemImage: "bolt.horizontal.circle")
                 Spacer()
                 Text(LiveActivityCenter.shared.isEnabled
                      ? "\(LiveActivityCenter.shared.activeCount) 条\u{000A}\(LiveActivityCenter.shared.lastMessage)"
@@ -97,7 +106,7 @@ struct SettingsView: View {
         } header: {
             Text("与系统集成")
         } footer: {
-            Text("物品会被索引进 Spotlight，可以直接在桌面搜索里搜到；也可以在 Siri 或快捷指令里说「用归位记一件东西」「归位我的护照放哪了」。")
+            Text("物品会被索引进 Spotlight，可以直接在桌面搜索里搜到。\n\n实时活动只显示「下一件要做的事」：先看最近要到期的东西，没有要到期的东西时才看最该归还的借出。切到别的 App 后它会一直显示在灵动岛与锁定屏上；想收起时长按灵动岛点「知道了」，或用下面的「收起灵动岛」。\n\n对 Siri 直接说「归位护照放哪了」「用归位记一件东西」「归位什么快过期了」即可，不用先配置快捷指令。")
         }
     }
 
@@ -126,6 +135,19 @@ struct SettingsView: View {
                     }
             }
 
+            // 演示用：立刻发一条通知。
+            // 前台也能看到横幅——靠的是 App 启动时设置的 UNUserNotificationCenterDelegate。
+            Button {
+                Task {
+                    let ok = await NotificationService.shared.sendDemoNotification(using: items)
+                    showToast(ok ? "3 秒后弹出通知 · 可按侧边键回桌面，或锁屏看效果"
+                                 : "没有通知权限，请先用上面的开关开启")
+                    pendingCount = await NotificationService.shared.pendingCount()
+                }
+            } label: {
+                Label("立刻发一条通知", systemImage: "bell.badge")
+            }
+
             HStack {
                 Label("已排程提醒", systemImage: "clock")
                 Spacer()
@@ -136,7 +158,7 @@ struct SettingsView: View {
         } header: {
             Text("提醒")
         } footer: {
-            Text("到期前 7 天提醒一次；借出的物品在应还日当天上午提醒。通知在本地生成，不需要联网。")
+            Text("到期前 7 天提醒一次；借出的物品在应还日当天上午提醒。已经进入 7 天窗口的物品会合并成一条摘要，当天只提醒一次。通知在本地生成，不需要联网。\n\n「立刻发一条通知」是给演示用的：点一下 3 秒后就会弹出，App 在前台也能看到横幅。")
         }
     }
 

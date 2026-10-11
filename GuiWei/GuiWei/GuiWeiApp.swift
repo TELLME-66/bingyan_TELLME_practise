@@ -15,6 +15,16 @@ struct GuiWeiApp: App {
     @State private var boundaryTask: Task<Void, Never>?
     @Environment(\.scenePhase) private var scenePhase
 
+    /// 只在"App 被划掉时收起灵动岛"这一件事上用到
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+
+    init() {
+        // 必须在启动阶段就把通知代理设上。
+        // 不设的话，App 处于前台时系统会把通知**静默丢弃**——
+        // 这正是"在 App 里演示却看不到通知"的根因。
+        NotificationService.shared.activate()
+    }
+
     var body: some Scene {
         WindowGroup {
             RootTabView()
@@ -28,9 +38,39 @@ struct GuiWeiApp: App {
                 .task { refreshAppearance() }
                 .onChange(of: appearanceRaw) { _, _ in refreshAppearance() }
                 .onChange(of: scenePhase) { _, phase in
-                    // 从后台回来时重新解析一次：设备休眠期间定时器不会触发，
-                    // 光靠定时器会出现"回到前台还是昨晚的深色"这种问题。
-                    if phase == .active { refreshAppearance() }
+                    switch phase {
+                    case .active:
+                        // 从后台回来时重新解析一次：设备休眠期间定时器不会触发，
+                        // 光靠定时器会出现"回到前台还是昨晚的深色"这种问题。
+                        refreshAppearance()
+                        // **前台也要刷新实时活动**，原因有两条：
+                        // 1. ActivityKit 要求 App 在前台才能新建活动，等退到后台再建可能被拒；
+                        // 2. iOS 不会在 App 前台时显示它自己的实时活动，所以挂着不会干扰。
+                        //    一旦用户切出去，它立刻就在灵动岛上了。
+                        #if DEBUG
+                        // 调试入口：不刷新灵动岛，用来观察"杀后台后活动是否已被系统回收"
+                        if !UserDefaults.standard.bool(forKey: "freezeIsland") {
+                            LiveActivityCenter.shared.refreshFromStore()
+                        }
+                        #else
+                        LiveActivityCenter.shared.refreshFromStore()
+                        #endif
+                        LiveActivityCenter.shared.syncState()
+
+                    case .background:
+                        // 离开那一刻按最新数据更新内容，**但绝不结束活动**。
+                        //
+                        // 踩过的坑：曾经在这里调 gracefulEnd()，结果灵动岛"闪一秒就没了"——
+                        // 因为 refresh 刚创建活动，end 立刻又把它结束，而**活动一旦 end
+                        // 就会立刻从灵动岛消失**（dismissalPolicy 只影响锁定屏）。
+                        //
+                        // 现在的行为：切到别的 App，灵动岛一直显示；由用户自己决定何时收起
+                        // （长按点「知道了」，或从设置页收起）。
+                        LiveActivityCenter.shared.refreshFromStore()
+
+                    default:
+                        break
+                    }
                 }
                 .fullScreenCover(isPresented: $showOnboarding) {
                     FirstRunFlowView(skipAppearance: skipAppearanceStep)
@@ -149,15 +189,12 @@ struct GuiWeiApp: App {
         await NotificationService.shared.rescheduleExpiry(for: items)
 
         #if DEBUG
-        // 调试入口：xcrun simctl launch booted com.bingyan.guiwei -startLiveActivity 1
-        if UserDefaults.standard.bool(forKey: "startLiveActivity"),
-           let item = items.first(where: { $0.isLentOut }),
-           let loan = item.activeLoan {
-            LiveActivityCenter.shared.start(itemName: item.name,
-                                         borrower: loan.borrower,
-                                         locationPath: item.locationPath,
-                                         dueDate: loan.dueAt)
+        // 调试入口：立刻按当前数据挑出「下一件要做的事」并挂到灵动岛上
+        // xcrun simctl launch booted <id> -refreshIsland 1
+        if UserDefaults.standard.bool(forKey: "refreshIsland") {
+            LiveActivityCenter.shared.refresh(items: items)
         }
+
         #endif
     }
 }
