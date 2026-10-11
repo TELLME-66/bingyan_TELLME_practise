@@ -23,7 +23,7 @@ enum ExpiryState: String {
 
 @Model
 final class Item {
-    /// 稳定标识：深链（guiwei://item/<uid>）、Spotlight 索引、通知标识都用它。
+    /// 稳定标识：深链（guiwei://item/<uid>）、通知标识都用它。
     /// 不用 SwiftData 的 persistentModelID，是因为那个值不适合直接写进 URL。
     var uid: String = UUID().uuidString
     var name: String = ""

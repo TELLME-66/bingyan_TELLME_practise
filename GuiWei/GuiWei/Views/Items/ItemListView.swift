@@ -413,12 +413,11 @@ struct ItemListView: View {
         }
     }
 
-    /// 数据变化后同步外部生态：Spotlight 索引 + 小组件快照。
+    /// 数据变化后同步外部生态：小组件快照。
     /// 这里重新从上下文取一次，而不是用 @Query 的 items——
     /// 删除后 @Query 还没来得及刷新，会把已删除的物品又写回索引和快照。
     private func refreshEcosystem() {
         let current = (try? context.fetch(FetchDescriptor<Item>())) ?? items
-        SpotlightIndexer.reindex(items: current)
         WidgetBridge.publish(items: current)
     }
 }

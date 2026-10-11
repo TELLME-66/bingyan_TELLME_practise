@@ -3,7 +3,7 @@ import SwiftData
 import UserNotifications
 
 /// 设置页：把"和系统打交道"的部分集中起来——
-/// 通知权限、Spotlight 索引、跳转「查找」、深链说明、数据重置。
+/// 通知权限、跳转「查找」、深链说明、数据重置。
 struct SettingsView: View {
     @Environment(\.modelContext) private var context
     @Environment(AppRouter.self) private var router
@@ -68,13 +68,6 @@ struct SettingsView: View {
 
     private var ecosystemSection: some View {
         Section {
-            Button {
-                SpotlightIndexer.reindex(items: items)
-                showToast("已把 \(items.count) 件物品写入 Spotlight")
-            } label: {
-                Label("重建 Spotlight 索引", systemImage: "magnifyingglass")
-            }
-
             Label("敬请期待实体标签", systemImage: "tag")
                 .foregroundStyle(.secondary)
 
@@ -106,7 +99,7 @@ struct SettingsView: View {
         } header: {
             Text("与系统集成")
         } footer: {
-            Text("物品会被索引进 Spotlight，可以直接在桌面搜索里搜到。\n\n实时活动只显示「下一件要做的事」：先看最近要到期的东西，没有要到期的东西时才看最该归还的借出。切到别的 App 后它会一直显示在灵动岛与锁定屏上；想收起时长按灵动岛点「知道了」，或用下面的「收起灵动岛」。\n\n对 Siri 直接说「归位护照放哪了」「用归位记一件东西」「归位什么快过期了」即可，不用先配置快捷指令。")
+            Text("实时活动只显示「下一件要做的事」：先看最近要到期的东西，没有要到期的东西时才看最该归还的借出。切到别的 App 后它会一直显示在灵动岛与锁定屏上；想收起时长按灵动岛点「知道了」，或用下面的「收起灵动岛」。\n\n对 Siri 直接说「归位护照放哪了」「用归位记一件东西」「归位什么快过期了」即可，不用先配置快捷指令。")
         }
     }
 
@@ -263,7 +256,7 @@ struct SettingsView: View {
                 Text("支持的链接")
                     .font(.subheadline)
                     .fontWeight(.semibold)
-                Text("guiwei://items 打开物品页；guiwei://find 打开「找东西」；guiwei://search?q=牛奶 直接搜索；guiwei://item/<编号> 跳到某件物品。快捷指令和 Spotlight 都会用到这些链接。")
+                Text("guiwei://items 打开物品页；guiwei://find 打开「找东西」；guiwei://search?q=牛奶 直接搜索；guiwei://item/<编号> 跳到某件物品。快捷指令会用到这些链接。")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
@@ -330,10 +323,9 @@ struct SettingsView: View {
         syncEcosystem()
     }
 
-    /// 数据大变之后，把外部生态（Spotlight、小组件、通知）重新同步一遍
+    /// 数据大变之后，把外部生态（小组件、通知）重新同步一遍
     private func syncEcosystem() {
         let refreshed = (try? context.fetch(FetchDescriptor<Item>())) ?? []
-        SpotlightIndexer.reindex(items: refreshed)
         WidgetBridge.publish(items: refreshed)
         Task {
             await NotificationService.shared.rescheduleExpiry(for: refreshed)

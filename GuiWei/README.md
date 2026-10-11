@@ -20,7 +20,7 @@
 - 到期前 7 天本地通知；借用到期当天提醒
 - 独立分类模型（图标 + 颜色 + 排序）、标签、Charts 三张统计图
 - **桌面小组件**（WidgetKit）与**借出实时活动 / 灵动岛**（ActivityKit）
-- 相机、系统分享（ImageRenderer 分享卡片 + ShareLink）、Spotlight、Siri 快捷指令、深链
+- 相机、系统分享（ImageRenderer 分享卡片 + ShareLink）、Siri 快捷指令、深链
 - 图片两级存储：原图 `@Attribute(.externalStorage)` + 缩略图内联，写入前压缩并做解码缓存
 
 **体验**
@@ -104,7 +104,7 @@ xcrun simctl launch booted $BID -guiwei.appearance dark   # 临时指定外观
 GuiWei/
 ├── Models/                  Item / StorageSpot / ItemCategory / LoanRecord
 ├── Services/                容器、路由、外观与形态、示例数据、图片管线、
-│                            通知、Spotlight、小组件快照
+│                            通知、小组件快照
 ├── LiveActivity/            借出实时活动的数据模型与开关
 ├── Intents/                 App Intents 与 Siri 短语
 ├── Support/                 Theme（间距、圆角、字体、状态色）
@@ -127,7 +127,6 @@ GuiWei.xcodeproj/            工程文件（含共享 scheme）
 | 能力 | 状态 |
 | --- | --- |
 | Siri / 快捷指令（3 个 intent + 中文短语） | 已实现 |
-| Spotlight 搜索索引 | 已实现 |
 | 本地通知（临期 / 借用到期） | 已实现 |
 | 系统分享（渲染分享卡片） | 已实现 |
 | 深链 `guiwei://`（8 条路由） | 已实现 |

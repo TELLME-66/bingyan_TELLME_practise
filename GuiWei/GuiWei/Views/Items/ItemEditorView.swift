@@ -293,7 +293,7 @@ struct ItemEditorView: View {
         target.touch()
         try? context.save()
 
-        // 保存后同步生态：通知重排 + Spotlight 重建
+        // 保存后同步生态：通知重排 + 小组件快照
         Task { @MainActor in
             if hasExpiry {
                 await NotificationService.shared.scheduleExpiry(for: target)
@@ -301,7 +301,6 @@ struct ItemEditorView: View {
                 NotificationService.shared.cancelExpiry(for: target)
             }
             let all = (try? context.fetch(FetchDescriptor<Item>())) ?? []
-            SpotlightIndexer.reindex(items: all)
             WidgetBridge.publish(items: all)
         }
 

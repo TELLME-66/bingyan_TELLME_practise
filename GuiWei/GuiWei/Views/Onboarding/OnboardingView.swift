@@ -34,7 +34,7 @@ struct OnboardingView: View {
             symbol: "magnifyingglass",
             title: "一句话找到它",
             message: "输入两个字，直接告诉你它在哪；借出去了，就告诉你在谁手里。",
-            bullets: ["名称、标签、位置都能命中", "Spotlight 桌面搜索里也能搜到"],
+            bullets: ["名称、标签、位置都能命中", "忘了叫什么都想得起来"],
             colors: [Color(hex: "1C7A8C"), Color(hex: "3FA36B")]),
         OnboardingPage(
             symbol: "person.2.fill",
@@ -45,7 +45,7 @@ struct OnboardingView: View {
         OnboardingPage(
             symbol: "bell.badge.fill",
             title: "到期提醒与系统集成",
-            message: "临期自动提醒；物品也出现在 Spotlight、Siri 与快捷指令里。",
+            message: "临期自动提醒；物品也能被 Siri 与快捷指令调用。",
             bullets: ["到期前 7 天提醒一次", "对 Siri 说「归位我的护照放哪了」"],
             colors: [Color(hex: "E08A2E"), Color(hex: "D2564B")]),
     ]

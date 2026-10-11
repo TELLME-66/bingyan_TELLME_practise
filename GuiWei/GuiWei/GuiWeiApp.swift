@@ -150,7 +150,7 @@ struct GuiWeiApp: App {
         showOnboarding = true
     }
 
-    /// 启动时的准备工作：示例数据、Spotlight 索引、通知重排。
+    /// 启动时的准备工作：示例数据、小组件快照、通知重排。
     /// 都放在 task 里做，避免阻塞首帧。
     @MainActor
     private func bootstrap() async {
@@ -184,7 +184,6 @@ struct GuiWeiApp: App {
         DemoDataSeeder.seedIfNeeded(context: context)
 
         let items = (try? context.fetch(FetchDescriptor<Item>())) ?? []
-        SpotlightIndexer.reindex(items: items)
         WidgetBridge.publish(items: items)
         await NotificationService.shared.rescheduleExpiry(for: items)
 
